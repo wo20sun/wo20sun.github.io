@@ -3,7 +3,7 @@
 # ----------------------- #
 
 url: http://wo20sun.github.io
-title: My Octopress Blog
+title: 喝完这杯还有三倍
 subtitle: A blogging framework for hackers.
 author: Your Name
 simple_search: https://www.google.com/search
@@ -99,5 +99,3 @@ google_analytics_tracking_id:
 
 # Facebook Like
 facebook_like: false
-
-auto:true
