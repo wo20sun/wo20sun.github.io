@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[喝完这杯还有三杯]]></title>
+  <title><![CDATA[free style]]></title>
   <link href="http://wo20sun.github.io/atom.xml" rel="self"/>
   <link href="http://wo20sun.github.io/"/>
-  <updated>2015-07-09T15:52:55+08:00</updated>
+  <updated>2015-07-09T18:22:43+08:00</updated>
   <id>http://wo20sun.github.io/</id>
   <author>
     <name><![CDATA[ph520]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[来来来，再来3杯]]></title>
+    <title type="html"><![CDATA[小孙，在此,mua！]]></title>
     <link href="http://wo20sun.github.io/blog/2015/07/09/my-first-blog/"/>
     <updated>2015-07-09T11:51:28+08:00</updated>
     <id>http://wo20sun.github.io/blog/2015/07/09/my-first-blog</id>
