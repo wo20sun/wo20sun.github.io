@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[喝完这杯还有三倍]]></title>
+  <title><![CDATA[喝完这杯还有三杯]]></title>
   <link href="http://wo20sun.github.io/atom.xml" rel="self"/>
   <link href="http://wo20sun.github.io/"/>
-  <updated>2015-07-09T15:44:38+08:00</updated>
+  <updated>2015-07-09T15:52:55+08:00</updated>
   <id>http://wo20sun.github.io/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[ph520]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
