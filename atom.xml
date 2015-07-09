@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[喝完这杯还有三倍]]></title>
+  <link href="http://wo20sun.github.io/atom.xml" rel="self"/>
+  <link href="http://wo20sun.github.io/"/>
+  <updated>2015-07-09T15:44:38+08:00</updated>
+  <id>http://wo20sun.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[来来来，再来3杯]]></title>
+    <link href="http://wo20sun.github.io/blog/2015/07/09/my-first-blog/"/>
+    <updated>2015-07-09T11:51:28+08:00</updated>
+    <id>http://wo20sun.github.io/blog/2015/07/09/my-first-blog</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+</feed>
