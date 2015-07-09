@@ -2,7 +2,7 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://yoursite.com
+url: http://wo20sun.github.io
 title: My Octopress Blog
 subtitle: A blogging framework for hackers.
 author: Your Name
@@ -99,3 +99,5 @@ google_analytics_tracking_id:
 
 # Facebook Like
 facebook_like: false
+
+auto:true
