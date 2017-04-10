@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://www.holysroc.cn/sitemap.xml 
+Sitemap: http://wo20sun.github.io/sitemap.xml 

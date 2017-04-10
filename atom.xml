@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[SmartRoc技术博客]]></title>
-  <link href="http://www.holysroc.cn/atom.xml" rel="self"/>
-  <link href="http://www.holysroc.cn/"/>
-  <updated>2017-04-10T18:29:00+08:00</updated>
-  <id>http://www.holysroc.cn/</id>
+  <link href="http://wo20sun.github.io/atom.xml" rel="self"/>
+  <link href="http://wo20sun.github.io/"/>
+  <updated>2017-04-10T18:52:37+08:00</updated>
+  <id>http://wo20sun.github.io/</id>
   <author>
     <name><![CDATA[ph520]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[2017年的小建议（摘自别人的文章）]]></title>
-    <link href="http://www.holysroc.cn/blog/2017%E5%B9%B4%E7%9A%8417%E4%B8%AA%E5%B0%8F%E5%BB%BA%E8%AE%AE.html/"/>
+    <link href="http://wo20sun.github.io/blog/2017%E5%B9%B4%E7%9A%8417%E4%B8%AA%E5%B0%8F%E5%BB%BA%E8%AE%AE.html/"/>
     <updated>2017-04-11T02:18:28+08:00</updated>
-    <id>http://www.holysroc.cn/blog/2017年的17个小建议</id>
+    <id>http://wo20sun.github.io/blog/2017年的17个小建议</id>
     <content type="html"><![CDATA[<blockquote>
   <p>这一年是如此一言难尽，有着迷惑的开篇、混乱的进程、几乎躁郁的收梢。
 可看起来依然花团锦簇，生命中的糖也点缀其中。我们之所以觉得2016年像一场盛大丰富但有点儿糟糕的旅行，也是因为扑面而来的“不确定”太多了一些。
@@ -73,9 +73,9 @@ list，提前安排好有节奏的购物和出游，笃定的等着预期中的�
   
   <entry>
     <title type="html"><![CDATA[Retrofit]]></title>
-    <link href="http://www.holysroc.cn/blog/Retrofit.html/"/>
+    <link href="http://wo20sun.github.io/blog/Retrofit.html/"/>
     <updated>2017-04-10T11:51:28+08:00</updated>
-    <id>http://www.holysroc.cn/blog/Retrofit</id>
+    <id>http://wo20sun.github.io/blog/Retrofit</id>
     <content type="html"><![CDATA[<h2 id="url">url规则：</h2>
 
 <blockquote>
@@ -101,9 +101,9 @@ Url = “http://host:port/aa/apath”</li>
   
   <entry>
     <title type="html"><![CDATA[OkHttp]]></title>
-    <link href="http://www.holysroc.cn/blog/OkHttp.html/"/>
+    <link href="http://wo20sun.github.io/blog/OkHttp.html/"/>
     <updated>2015-07-09T11:51:28+08:00</updated>
-    <id>http://www.holysroc.cn/blog/OkHttp</id>
+    <id>http://wo20sun.github.io/blog/OkHttp</id>
     <content type="html"><![CDATA[
 ]]></content>
   </entry>
