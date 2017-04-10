@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[分类：android | SmartRoc技术博客]]></title>
+  <link href="http://www.holysroc.cn/blog/categories/android/atom.xml" rel="self"/>
+  <link href="http://www.holysroc.cn/"/>
+  <updated>2017-04-10T18:29:00+08:00</updated>
+  <id>http://www.holysroc.cn/</id>
+  <author>
+    <name><![CDATA[ph520]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Retrofit]]></title>
+    <link href="http://www.holysroc.cn/blog/Retrofit.html/"/>
+    <updated>2017-04-10T11:51:28+08:00</updated>
+    <id>http://www.holysroc.cn/blog/Retrofit</id>
+    <content type="html"><![CDATA[<h2 id="url">url规则：</h2>
+
+<blockquote>
+  <ul>
+    <li>path 是绝对路径的形式： 
+path = “/apath”，baseUrl = “http://host:port/a/b” 
+Url = “http://host:port/apath”
+<!--more--></li>
+    <li>path 是相对路径，baseUrl 是目录形式： 
+path = “apath”，baseUrl = “http://host:port/a/b/” 
+Url = “http://host:port/a/b/apath”</li>
+    <li>path 是相对路径，baseUrl 是文件形式： 
+path = “apath”，baseUrl = “http://host:port/a/b” 
+Url = “http://host:port/a/apath”</li>
+    <li>path 是完整的 Url： 
+path = “http://host:port/aa/apath“，baseUrl = “http://host:port/a/b”
+Url = “http://host:port/aa/apath”</li>
+  </ul>
+</blockquote>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[OkHttp]]></title>
+    <link href="http://www.holysroc.cn/blog/OkHttp.html/"/>
+    <updated>2015-07-09T11:51:28+08:00</updated>
+    <id>http://www.holysroc.cn/blog/OkHttp</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+</feed>
