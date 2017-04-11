@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[分类：android | SmartRoc技术博客]]></title>
-  <link href="http://wo20sun.github.io/blog/categories/android/atom.xml" rel="self"/>
-  <link href="http://wo20sun.github.io/"/>
-  <updated>2017-04-11T14:22:53+08:00</updated>
-  <id>http://wo20sun.github.io/</id>
+  <link href="www.holysroc.cn/blog/categories/android/atom.xml" rel="self"/>
+  <link href="www.holysroc.cn/"/>
+  <updated>2017-04-11T14:43:21+08:00</updated>
+  <id>www.holysroc.cn/</id>
   <author>
     <name><![CDATA[ph520]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Retrofit]]></title>
-    <link href="http://wo20sun.github.io/blog/Retrofit.html/"/>
+    <link href="www.holysroc.cn/blog/Retrofit.html/"/>
     <updated>2017-04-10T11:51:28+08:00</updated>
-    <id>http://wo20sun.github.io/blog/Retrofit</id>
+    <id>www.holysroc.cn/blog/Retrofit</id>
     <content type="html"><![CDATA[<h2 id="url">url规则：</h2>
 
 <blockquote>
@@ -43,9 +43,9 @@ Url = “http://host:port/aa/apath”</li>
   
   <entry>
     <title type="html"><![CDATA[OkHttp]]></title>
-    <link href="http://wo20sun.github.io/blog/OkHttp.html/"/>
+    <link href="www.holysroc.cn/blog/OkHttp.html/"/>
     <updated>2015-07-09T11:51:28+08:00</updated>
-    <id>http://wo20sun.github.io/blog/OkHttp</id>
+    <id>www.holysroc.cn/blog/OkHttp</id>
     <content type="html"><![CDATA[
 ]]></content>
   </entry>
