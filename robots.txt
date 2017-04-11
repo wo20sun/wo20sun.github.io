@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: www.holysroc.cn/sitemap.xml 
+Sitemap: http://www.holysroc.cn/sitemap.xml 
