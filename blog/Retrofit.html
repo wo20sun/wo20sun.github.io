@@ -29,7 +29,16 @@
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-
+<script type="text/javascript">
+function addBlankTargetForLinks () {
+$('a[href^="http"]').each(function(){
+$(this).attr('target', '_blank');
+});
+}
+$(document).bind('DOMNodeInserted', function(event) {
+addBlankTargetForLinks();
+});
+</script>
   
 
 </head>
@@ -86,23 +95,19 @@
 
 <div class="entry-content"><h2 id="url">url规则：</h2>
 
-<blockquote>
-  <ul>
-    <li>path 是绝对路径的形式： 
+<p>1.path 是绝对路径的形式： 
 path = “/apath”，baseUrl = “http://host:port/a/b” 
 Url = “http://host:port/apath”
-<!--more--></li>
-    <li>path 是相对路径，baseUrl 是目录形式： 
+<!--more-->
+2.path 是相对路径，baseUrl 是目录形式： 
 path = “apath”，baseUrl = “http://host:port/a/b/” 
-Url = “http://host:port/a/b/apath”</li>
-    <li>path 是相对路径，baseUrl 是文件形式： 
+Url = “http://host:port/a/b/apath”
+&gt; * path 是相对路径，baseUrl 是文件形式： 
 path = “apath”，baseUrl = “http://host:port/a/b” 
-Url = “http://host:port/a/apath”</li>
-    <li>path 是完整的 Url： 
+Url = “http://host:port/a/apath”
+&gt; * path 是完整的 Url： 
 path = “http://host:port/aa/apath“，baseUrl = “http://host:port/a/b”
-Url = “http://host:port/aa/apath”</li>
-  </ul>
-</blockquote>
+Url = “http://host:port/aa/apath”</p>
 
 </div>
 
@@ -133,9 +138,28 @@ Url = “http://host:port/aa/apath”</li>
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://www.holysroc.cn/blog/Retrofit.html" data-via="" data-counturl="http://www.holysroc.cn/blog/Retrofit.html" >Tweet</a>
   
   
+  
+  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+    <a class="jiathis_button_qzone"></a>
+    <a class="jiathis_button_tsina"></a>
+    <a class="jiathis_button_tqq"></a>
+    <a class="jiathis_button_weixin"></a>
+    <a class="jiathis_button_renren"></a>
+    <a href="http://www.jiathis.com/share?uid=2130839" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+    <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript">
+    var jiathis_config = {data_track_clickback:'true'};
+    </script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=2130839" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2130839"></script>
+<!-- UY END -->
   
 </div>
 
@@ -207,16 +231,6 @@ Url = “http://host:port/aa/apath”</li>
 
 
 
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
 
 
 

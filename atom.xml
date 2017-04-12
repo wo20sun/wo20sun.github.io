@@ -4,7 +4,7 @@
   <title><![CDATA[SmartRoc技术博客]]></title>
   <link href="http://www.holysroc.cn/atom.xml" rel="self"/>
   <link href="http://www.holysroc.cn/"/>
-  <updated>2017-04-11T16:42:31+08:00</updated>
+  <updated>2017-04-12T18:28:37+08:00</updated>
   <id>http://www.holysroc.cn/</id>
   <author>
     <name><![CDATA[ph520]]></name>
@@ -79,23 +79,19 @@ list，提前安排好有节奏的购物和出游，笃定的等着预期中的�
     <id>http://www.holysroc.cn/blog/Retrofit</id>
     <content type="html"><![CDATA[<h2 id="url">url规则：</h2>
 
-<blockquote>
-  <ul>
-    <li>path 是绝对路径的形式： 
+<p>1.path 是绝对路径的形式： 
 path = “/apath”，baseUrl = “http://host:port/a/b” 
 Url = “http://host:port/apath”
-<!--more--></li>
-    <li>path 是相对路径，baseUrl 是目录形式： 
+<!--more-->
+2.path 是相对路径，baseUrl 是目录形式： 
 path = “apath”，baseUrl = “http://host:port/a/b/” 
-Url = “http://host:port/a/b/apath”</li>
-    <li>path 是相对路径，baseUrl 是文件形式： 
+Url = “http://host:port/a/b/apath”
+&gt; * path 是相对路径，baseUrl 是文件形式： 
 path = “apath”，baseUrl = “http://host:port/a/b” 
-Url = “http://host:port/a/apath”</li>
-    <li>path 是完整的 Url： 
+Url = “http://host:port/a/apath”
+&gt; * path 是完整的 Url： 
 path = “http://host:port/aa/apath“，baseUrl = “http://host:port/a/b”
-Url = “http://host:port/aa/apath”</li>
-  </ul>
-</blockquote>
+Url = “http://host:port/aa/apath”</p>
 
 ]]></content>
   </entry>

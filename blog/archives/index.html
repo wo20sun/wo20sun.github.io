@@ -14,6 +14,7 @@
 04 月 10 日 2017 分类： android 2015 OkHttp
 07 月 09 日 2015 分类： android 文章分类 android ( &hellip;">
   
+      <meta name="keywords" content="android, SmartRoc技术博客, SmartRoc">
 
   <!-- http://t.co/dKP3o1e -->
   <meta name="HandheldFriendly" content="True">
@@ -32,7 +33,16 @@
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-
+<script type="text/javascript">
+function addBlankTargetForLinks () {
+$('a[href^="http"]').each(function(){
+$(this).attr('target', '_blank');
+});
+}
+$(document).bind('DOMNodeInserted', function(event) {
+addBlankTargetForLinks();
+});
+</script>
   
 
 </head>
@@ -185,16 +195,6 @@
 
 
 
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
 
 
 
