@@ -2,18 +2,21 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://wo20sun.github.io
+url: http://www.holysroc.cn
 title: SmartRoc技术博客
 subtitle: 好多朋友都劝我让我大度一些 我最讨厌那种不知道什么事就来劝你大度一点的人 你知道我经历了什么 这种人你得离他远点 因为他遭雷劈的时候容易连累到你 夸 这扎你一刀 你血还没擦干净呢 他一过来跟你说你要勇敢起来 你死不死啊 （郭德纲脸[嘘]） ​​​​
 author: ph520
 simple_search: https://www.google.com/search
-description:
+keywords: android, SmartRoc技术博客, SmartRoc
+description: SmartRoc安卓技术博客
+
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
 # http://www.ruby-doc.org/core-1.9.2/Time.html#method-i-strftime
 # Additionally, %o will give you the ordinal representation of the day
 date_format: "%Y年%-m月%-d日"
+weibo_share: true
 
 # RSS / Email (optional) subscription links (change if using something like Feedburner)
 subscribe_rss: /atom.xml
@@ -27,7 +30,7 @@ email:
 
 # If publishing to a subdirectory as in http://site.com/project set 'root: /project'
 root: /
-permalink: /blog/:title.html/
+permalink: /blog/:title.html
 source: source
 destination: public
 plugins: plugins
@@ -71,8 +74,8 @@ github_show_profile_link: true
 github_skip_forks: true
 
 # Twitter
-twitter_user:
-twitter_tweet_button: true
+#witter_user:
+#twitter_tweet_button: true
 
 # Google +1
 google_plus_one: false
