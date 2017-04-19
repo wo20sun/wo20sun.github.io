@@ -94,21 +94,27 @@ addBlankTargetForLinks();
   </header>
 
 
-<div class="entry-content"><h2 id="url">url规则：</h2>
+<div class="entry-content"><h3 id="retrofit">Retrofit</h3>
 
-<p>1.path 是绝对路径的形式： 
-path = “/apath”，baseUrl = “http://host:port/a/b” 
-Url = “http://host:port/apath”
+<p>Retrofit是什么？Type-safe HTTP client for Android and Java by Square，中文是由Square公司开发基于安卓和JAVA平台的的http客户端请求。</p>
+
+<p>如何集成？compile ‘com.squareup.retrofit2:retrofit:2.2.0’（可以去github获取最新版）</p>
+
 <!--more-->
-2.path 是相对路径，baseUrl 是目录形式： 
-path = “apath”，baseUrl = “http://host:port/a/b/” 
-Url = “http://host:port/a/b/apath”
-&gt; * path 是相对路径，baseUrl 是文件形式： 
-path = “apath”，baseUrl = “http://host:port/a/b” 
-Url = “http://host:port/a/apath”
-&gt; * path 是完整的 Url： 
-path = “http://host:port/aa/apath“，baseUrl = “http://host:port/a/b”
-Url = “http://host:port/aa/apath”</p>
+
+<h3 id="section">基础</h3>
+
+<h4 id="url">1.url规则：</h4>
+<p>| path（设置的path）| baseUrl（设置的url）| result（最终请求的结果）|<br />
+(对应下面的3行3列)</p>
+
+<p>【绝对路径 /apath】 【http://host:port/a/b】 【http://host:port/apath】</p>
+
+<p>【相对路径 apath】] 【http://host:port/a/b/】 【http://host:port/a/b/apath】</p>
+
+<p>【相对路径 apath】 【http://host:port/a/b】 【http://host:port/a/apath】</p>
+
+<p>【完整路径 http://host:port/aa/apath】【http://host:port/a/b】【http://host:port/aa/apath】</p>
 
 </div>
 
