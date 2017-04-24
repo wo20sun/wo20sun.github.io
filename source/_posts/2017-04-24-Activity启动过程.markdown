@@ -1,0 +1,98 @@
+---
+layout: post
+title: "Activity启动过程"
+date: 2017-04-24 18:16:09 +0800
+comments: true
+categories: 
+description: 
+keywords: 
+
+---
+
+###知识点：
+
+1.生命周期
+
+2.启动模式
+
+3.启动进程
+	清单文件定义Activity的时候，默认属于以包名命名的进程。启动的时候检测这个Activity所属进程是否启动，若没启动，则启动进程后才会执行Activity启动
+		
+4.启动方式
+	显示，隐式。显示启动需要Activity字节码,不需要执行Intent Filter索引找出那个Activity,而隐士启动则是通过Intent Filter，因为无法获取其他进程的字节码。所以需要启动其他应用的Activity,一般都是隐式。
+
+5.cs模式  
+	Activity启动过程其实是应用进程和SystemServer进程相互配合启动Activity的过程，应用进程负责生命周期方法等操作，而后者是调用各种服务，将Activity保存在栈中，协调系统资源等操作
+
+6.binder机制
+	Android系统存了Zygote进程和SystemServer进程以及各种应用进程等，为了能够实现各种进程之间的通讯，Android系统采用了自己的进程间通讯方式Binder机制。其中主要涉及到了四种角色：Binder Client，Binder Server，Binder Manager， Binder driver。
+
+###代码执行过程:
+
+
+####1.请求执行过程
+
+MyActivity.startActivity() 
+
+Activity.startActivity() 
+
+Activity.startActivityForResult （知识点 requestcode>=0 是有效值）
+
+Instrumentation.execStartActivty 
+
+<font color=red size=2>
+ActivityManagerNative.getDefault().startActivityAsUser() 前者返回了activitymanagerproxy这个代理对象，这里涉及到进程间通信的知识，ActivityManagerNative调用接口方法的时候底层通过Binder driver就会将请求数据与请求传递给server端，并在server端执行具体的接口逻辑，这个server就是activitymanagerservice
+</font>
+
+####2.ActivityManagerService接收启动Activity的请求
+
+ActivityManagerService.startActivity() 
+ActvityiManagerService.startActivityAsUser() 
+ActivityStackSupervisor.startActivityMayWait() 
+ActivityStackSupervisor.startActivityLocked() 
+ActivityStackSupervisor.startActivityUncheckedLocked() 
+ActivityStackSupervisor.startActivityLocked() 
+ActivityStackSupervisor.resumeTopActivitiesLocked() 
+ActivityStackSupervisor.resumeTopActivityInnerLocked() 
+
+<font color=red size=2>
+	构造了ActivityeRecord对象,解析出Activity的启动模式,对栈做出处理;还	初始化了windowManager服务;并对请求的信息进行保存
+</font>
+
+####3.执行栈顶的onPause
+
+ActivityStack.startPausingLocked() 
+
+IApplicationThread.schudulePauseActivity() 
+
+ActivityThread.sendMessage() 
+
+ActivityThread.H.sendMessage(); 
+
+ActivityThread.H.handleMessage() 
+
+ActivityThread.handlePauseActivity() 
+
+ActivityThread.performPauseActivity() 
+
+Activity.performPause() 
+
+Activity.onPause() 
+
+ActivityManagerNative.getDefault().activityPaused(token) 
+
+ActivityManagerService.activityPaused() 
+
+ActivityStack.activityPausedLocked() 
+
+ActivityStack.completePauseLocked() 
+
+ActivityStack.resumeTopActivitiesLocked() 
+
+ActivityStack.resumeTopActivityLocked() 
+
+ActivityStack.resumeTopActivityInnerLocked() 
+
+ActivityStack.startSpecificActivityLocked 
+
+这边进行过上面操作之后，下面要调用onPause了，那么应用进程怎么知道呢，这边又是一个IApplicationThread即Binder对象,进程间通信，ActivityThread执行方法schedulePauseActivity，里面调用了sendMessage，ActivityThread里面定义了一个Handler,主要处理SystemServer进程的消息；应用进程执行完了OnPause再通知系统进程
