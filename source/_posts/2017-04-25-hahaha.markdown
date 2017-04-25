@@ -1,0 +1,137 @@
+---
+layout: post
+title: "Activity布局加载流程和布局绘制流程"
+date: 2017-04-25 16:41:17 +0800
+comments: true
+categories: android源码
+description: Activity布局加载流程和布局绘制流程
+keywords: Activity布局加载流程,Activity布局绘制流程,布局加载流程,布局绘制流程
+
+---
+## Activity布局加载流程和布局绘制流程
+
+###Activity布局加载流程
+<!--more-->
+
+#### 1.从之前Activity启动流程中有个ActivityThread.attach()这个方法
+
+```
+	mWindow = new PhoneWindow(this);
+    mWindow.setCallback(this);
+   	mWindow.setOnWindowDismissedCallback(this);
+    mWindow.getLayoutInflater().setPrivateFactory(this);
+```
+初始化了mWindow这个对象，其实是PhoneWindow实例法
+
+#### 2.attach方法里面mInstrumentation.callActivityOnCreate(activity, r.state);
+
+```
+	public void callActivityOnCreate(Activity activity, Bundle icicle) 
+	{
+        prePerformCreate(activity);
+        activity.performCreate(icicle);
+        postPerformCreate(activity);
+    }
+    
+    final void performCreate(Bundle icicle) {
+        onCreate(icicle);
+        mActivityTransitionState.readState(icicle);
+        performCreateCommon();
+    }
+    
+```
+可以看到生命周期onCreate是在这里回调的
+
+#### 3. 看onCreate里面代码,做了一些初始化数据;如果我们不调用super.onCreate(),会在performLaunchActivit 
+
+ 
+```
+                if (r.isPersistable()) {
+                    mInstrumentation.callActivityOnCreate(activity, r.state, r.persistentState);
+                } else {
+                    mInstrumentation.callActivityOnCreate(activity, r.state);
+                }
+                if (!activity.mCalled) 
+                    throw new SuperNotCalledException(
+                        "Activity " + r.intent.getComponent().toShortString() +
+                        " did not call through to super.onCreate()");
+                }
+
+```
+activity.mCalled这个参数在super.onCreate()赋值为true了,不调用就会抛异常
+
+#### 4. 看setContentView，贴了一些重要代码块
+
+```
+	public void setContentView(@LayoutRes int layoutResID) {
+        getWindow().setContentView(layoutResID);
+        initWindowDecorActionBar();
+    }
+    
+    @Override
+    public void setContentView(int layoutResID) {
+        // Note: FEATURE_CONTENT_TRANSITIONS may be set in the process of installing the window
+        // decor, when theme attributes and the like are crystalized. Do not check the feature
+        // before this happens.
+        if (mContentParent == null) {
+            installDecor();
+        } else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
+            mContentParent.removeAllViews();
+        }
+
+        if (hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
+            final Scene newScene = Scene.getSceneForLayout(mContentParent, layoutResID,
+                    getContext());
+            transitionTo(newScene);
+        } else {
+            mLayoutInflater.inflate(layoutResID, mContentParent);
+        }
+        mContentParent.requestApplyInsets();
+        final Callback cb = getCallback();
+        if (cb != null && !isDestroyed()) {
+            cb.onContentChanged();
+        }
+    }
+    
+    private void installDecor() {
+        if (mDecor == null) {
+            mDecor = generateDecor();
+            mDecor.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+            mDecor.setIsRootNamespace(true);
+            if (!mInvalidatePanelMenuPosted && mInvalidatePanelMenuFeatures != 0) {
+                mDecor.postOnAnimation(mInvalidatePanelMenuRunnable);
+            }
+        }
+        ...
+    }
+    
+    protected DecorView generateDecor() {
+        return new DecorView(getContext(), -1);
+    }
+    
+    if (mContentParent == null) {
+            mContentParent = generateLayout(mDecor);
+            
+    protected ViewGroup generateLayout(DecorView decor) {
+        ...
+
+        View in = mLayoutInflater.inflate(layoutResource, null);
+        decor.addView(in, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+        mContentRoot = (ViewGroup) in;
+
+        ViewGroup contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT);
+        if (contentParent == null) {
+            throw new RuntimeException("Window couldn't find content container view");
+        }
+		...
+        return contentParent;
+    }
+    
+```
+可以发现这里就是通过调用LayoutInflater.inflate方法来加载布局文件到内存中,inflate通过对xml解析，将信息解析到了View中，一步步解析到了rootview中；通过对代码的分析，我们发现PhoneWindow中的几个成员变量：mDector，mContentRoot，mContentParent的继承关系 
+
+#### 5. mLayoutInflater.inflate(layoutResID, mContentParent)这个方法
+
+layoutId作为mContentParent的子View，而mContentParent又是mContentRoot的子View，mContentRoot又是mDector的子View，通过LayoutInflater的inflate方法逐步加载到了内存中，而我们的Activity又持有自身的PhoneWindow的引用，这就相当于我们的Activity持有了我们定义的布局文件的引用，因而Activity的布局文件被加载到了内存中。
+
+### Activity布局绘制流程

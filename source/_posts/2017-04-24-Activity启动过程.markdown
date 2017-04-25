@@ -3,9 +3,9 @@ layout: post
 title: "Activity启动过程"
 date: 2017-04-24 18:16:09 +0800
 comments: true
-categories: 
-description: 
-keywords: 
+categories: Android源码
+description: Activity启动过程
+keywords: Activity启动过程
 
 ---
 
@@ -14,6 +14,8 @@ keywords:
 1.生命周期
 
 2.启动模式
+	stand	ard,singletop,singletask,singleinstance
+<!--more-->
 
 3.启动进程
 	清单文件定义Activity的时候，默认属于以包名命名的进程。启动的时候检测这个Activity所属进程是否启动，若没启动，则启动进程后才会执行Activity启动
@@ -40,9 +42,8 @@ Activity.startActivityForResult （知识点 requestcode>=0 是有效值）
 
 Instrumentation.execStartActivty 
 
-<font color=red size=2>
-ActivityManagerNative.getDefault().startActivityAsUser() 前者返回了activitymanagerproxy这个代理对象，这里涉及到进程间通信的知识，ActivityManagerNative调用接口方法的时候底层通过Binder driver就会将请求数据与请求传递给server端，并在server端执行具体的接口逻辑，这个server就是activitymanagerservice
-</font>
+ActivityManagerNative.getDefault().startActivityAsUser() 前者返回了activitymanagerproxy这个代理对象，这里涉及到进程间通信的知识，引入一个概念，ActivityThread属于应用进程通过ActivityManagerNative这个Ibinder对象调用属于SystemServer进程中的ActivityManagerService,看下面ActivityManagerService.startActivity()
+
 
 ####2.ActivityManagerService接收启动Activity的请求
 
@@ -55,9 +56,8 @@ ActivityStackSupervisor.startActivityLocked()
 ActivityStackSupervisor.resumeTopActivitiesLocked() 
 ActivityStackSupervisor.resumeTopActivityInnerLocked() 
 
-<font color=red size=2>
-	构造了ActivityeRecord对象,解析出Activity的启动模式,对栈做出处理;还	初始化了windowManager服务;并对请求的信息进行保存
-</font>
+构造了ActivityeRecord对象,解析出Activity的启动模式,对栈做出相应的处理;还初始化了windowManager服务;并对请求的信息进行保存；一系列的逻辑之后执行当前系统栈顶Activity的onPause操作ActivityStack.startPausingLocked()
+
 
 ####3.执行栈顶的onPause
 
@@ -95,4 +95,62 @@ ActivityStack.resumeTopActivityInnerLocked()
 
 ActivityStack.startSpecificActivityLocked 
 
-这边进行过上面操作之后，下面要调用onPause了，那么应用进程怎么知道呢，这边又是一个IApplicationThread即Binder对象,进程间通信，ActivityThread执行方法schedulePauseActivity，里面调用了sendMessage，ActivityThread里面定义了一个Handler,主要处理SystemServer进程的消息；应用进程执行完了OnPause再通知系统进程
+ActivityService要调用onPause了,那么应用进程怎么知道呢,这边又是一个IApplicationThread即Binder对象,进程间通信,ActivityThread执行方法schedulePauseActivity;看到源码里面调用了sendMessage,ActivityThread里面定义了一个Handler,主要处理SystemServer进程的消息;应用进程执行完了OnPause再通知系统进程,又回到了第二步的解析方法ActivityStack.resumeTopActivitiesLocked，这时候继续执行activity的启动startSpecificActivityLocked,这个方法先判断了一个需要启动的Activity所需要的进程是否启动，若启动调用realStartProcessLocked,否则Activitymanagerservice.StartProcessLocked先启动进程再启动Activity
+
+####4.启动Activity所需的应用进程
+
+ActivityManagerService.startProcessLocked() 
+Process.start() 
+ActivityThread.main() 
+ActivityThread.attach() 
+ActivityManagerNative.getDefault().attachApplication() 
+ActivityManagerService.attachApplication() 
+
+进行了初始化操作而且传入了新的进程名为"android.app.ActivityThread"，发现最终调用了Zygote并通过Socket的方式让Zygote进程fork出了一个新的进程，并根据刚刚传入的名字反射出该对象并执行了main方法，main方法里面初始化逻辑并创建了UI线程消息队列；main方法结束进程已经启动了,但是还没初始化,后面方法结束进程就全部启动了,这里其实又看到ActivityManagerNative.getDefault().***,进程间通信不再赘述。
+
+####5.执行启动Activity
+
+ActivityStackSupervisor.attachApplicationLocked() 
+ActivityStackSupervisor.realStartActivityLocked() 
+IApplicationThread.scheduleLauncherActivity() 
+ActivityThread.sendMessage() 
+ActivityThread.H.sendMessage() 
+ActivityThread.H.handleMessage() 
+ActivityThread.handleLauncherActivity() 
+ActivityThread.performLauncherActivity() 
+Instrumentation.callActivityOnCreate() 
+Activity.onCreate() 
+ActivityThread.handleResumeActivity() 
+ActivityThread.performResumeActivity() 
+Activity.performResume() 
+Instrumentation.callActivityOnResume() 
+Activity.onResume() 
+ActivityManagerNative.getDefault().activityResumed(token) 
+
+realStartActivityLocked() 方法开始启动Activity了,又看到了IApplicationThread和消息队列,同样的处理系统过来的消息，这次是callActivityOnCreate(),再而callActivityOnResume(),页面已经展示完毕,还没结束,看下面
+
+####6.栈顶Activity执行onStop方法
+
+
+Looper.myQueue().addIdleHandler(new Idler()) 
+Idler.queueIdle() 
+ActivityManagerNative.getDefault().activityIdle() 
+ActivityManagerService.activityIdle() 
+ActivityStackSupervisor.activityIdleInternalLocked() 
+ActivityStack.stopActivityLocked() 
+IApplicationThread.scheduleStopActivity() 
+ActivityThread.scheduleStopActivity() 
+ActivityThread.sendMessage() 
+ActivityThread.H.sendMessage() 
+ActivityThread.H.handleMessage() 
+ActivityThread.handleStopActivity() 
+ActivityThread.performStopActivityInner() 
+ActivityThread.callCallActivityOnSaveInstanceState() 
+Instrumentation.callActivityOnSaveInstanceState() 
+Activity.performSaveInstanceState() 
+Activity.onSaveInstanceState() 
+Activity.performStop() 
+Instrumentation.callActivityOnStop() 
+Activity.onStop() 
+
+handleResumeActivity()方法中主要到Looper.myQueue().addIdleHandler(new Idler())这个方法,跟进去都是熟悉的流程，熟悉的对象，熟悉的方法，最终调用了callActivityOnStop()方法
