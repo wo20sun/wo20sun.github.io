@@ -1,0 +1,375 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Activity启动过程 - SmartRoc技术博客</title>
+  <meta name="author" content="ph520">
+
+  
+  <meta name="description" content="Activity启动过程">
+  <meta name="keywords" content="Activity启动过程">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://www.holysroc.cn/blog/Activity%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B.html">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="SmartRoc技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+   <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>-->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+function addBlankTargetForLinks () {
+$('a[href^="http"]').each(function(){
+$(this).attr('target', '_blank');
+});
+}
+$(document).bind('DOMNodeInserted', function(event) {
+addBlankTargetForLinks();
+});
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">SmartRoc技术博客</a></h1>
+  
+    <h2>好多朋友都劝我让我大度一些 我最讨厌那种不知道什么事就来劝你大度一点的人 你知道我经历了什么 这种人你得离他远点 因为他遭雷劈的时候容易连累到你 夸 这扎你一刀 你血还没擦干净呢 他一过来跟你说你要勇敢起来 你死不死啊 （郭德纲脸[嘘]） ​​​​</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="www.holysroc.cn">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">博客</a></li>
+  <li><a href="/blog/archives">文章列表</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Activity启动过程</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2017-04-24T18:16:09+08:00'><span class='date'>2017年4月24日</span> <span class='time'>6:16 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h3 id="section">知识点：</h3>
+
+<p>1.生命周期</p>
+
+<p>2.启动模式
+	stand	ard,singletop,singletask,singleinstance
+<!--more--></p>
+
+<p>3.启动进程
+	清单文件定义Activity的时候，默认属于以包名命名的进程。启动的时候检测这个Activity所属进程是否启动，若没启动，则启动进程后才会执行Activity启动</p>
+
+<p>4.启动方式
+	显示，隐式。显示启动需要Activity字节码,不需要执行Intent Filter索引找出那个Activity,而隐士启动则是通过Intent Filter，因为无法获取其他进程的字节码。所以需要启动其他应用的Activity,一般都是隐式。</p>
+
+<p>5.cs模式<br />
+	Activity启动过程其实是应用进程和SystemServer进程相互配合启动Activity的过程，应用进程负责生命周期方法等操作，而后者是调用各种服务，将Activity保存在栈中，协调系统资源等操作</p>
+
+<p>6.binder机制
+	Android系统存了Zygote进程和SystemServer进程以及各种应用进程等，为了能够实现各种进程之间的通讯，Android系统采用了自己的进程间通讯方式Binder机制。其中主要涉及到了四种角色：Binder Client，Binder Server，Binder Manager， Binder driver。</p>
+
+<h3 id="section-1">代码执行过程:</h3>
+
+<h4 id="section-2">1.请求执行过程</h4>
+
+<p>MyActivity.startActivity()</p>
+
+<p>Activity.startActivity()</p>
+
+<p>Activity.startActivityForResult （知识点 requestcode&gt;=0 是有效值）</p>
+
+<p>Instrumentation.execStartActivty</p>
+
+<p>ActivityManagerNative.getDefault().startActivityAsUser() 前者返回了activitymanagerproxy这个代理对象，这里涉及到进程间通信的知识，引入一个概念，ActivityThread属于应用进程通过ActivityManagerNative这个Ibinder对象调用属于SystemServer进程中的ActivityManagerService,看下面ActivityManagerService.startActivity()</p>
+
+<h4 id="activitymanagerserviceactivity">2.ActivityManagerService接收启动Activity的请求</h4>
+
+<p>ActivityManagerService.startActivity() 
+ActvityiManagerService.startActivityAsUser() 
+ActivityStackSupervisor.startActivityMayWait() 
+ActivityStackSupervisor.startActivityLocked() 
+ActivityStackSupervisor.startActivityUncheckedLocked() 
+ActivityStackSupervisor.startActivityLocked() 
+ActivityStackSupervisor.resumeTopActivitiesLocked() 
+ActivityStackSupervisor.resumeTopActivityInnerLocked()</p>
+
+<p>构造了ActivityeRecord对象,解析出Activity的启动模式,对栈做出相应的处理;还初始化了windowManager服务;并对请求的信息进行保存；一系列的逻辑之后执行当前系统栈顶Activity的onPause操作ActivityStack.startPausingLocked()</p>
+
+<h4 id="onpause">3.执行栈顶的onPause</h4>
+
+<p>ActivityStack.startPausingLocked()</p>
+
+<p>IApplicationThread.schudulePauseActivity()</p>
+
+<p>ActivityThread.sendMessage()</p>
+
+<p>ActivityThread.H.sendMessage();</p>
+
+<p>ActivityThread.H.handleMessage()</p>
+
+<p>ActivityThread.handlePauseActivity()</p>
+
+<p>ActivityThread.performPauseActivity()</p>
+
+<p>Activity.performPause()</p>
+
+<p>Activity.onPause()</p>
+
+<p>ActivityManagerNative.getDefault().activityPaused(token)</p>
+
+<p>ActivityManagerService.activityPaused()</p>
+
+<p>ActivityStack.activityPausedLocked()</p>
+
+<p>ActivityStack.completePauseLocked()</p>
+
+<p>ActivityStack.resumeTopActivitiesLocked()</p>
+
+<p>ActivityStack.resumeTopActivityLocked()</p>
+
+<p>ActivityStack.resumeTopActivityInnerLocked()</p>
+
+<p>ActivityStack.startSpecificActivityLocked</p>
+
+<p>ActivityService要调用onPause了,那么应用进程怎么知道呢,这边又是一个IApplicationThread即Binder对象,进程间通信,ActivityThread执行方法schedulePauseActivity;看到源码里面调用了sendMessage,ActivityThread里面定义了一个Handler,主要处理SystemServer进程的消息;应用进程执行完了OnPause再通知系统进程,又回到了第二步的解析方法ActivityStack.resumeTopActivitiesLocked，这时候继续执行activity的启动startSpecificActivityLocked,这个方法先判断了一个需要启动的Activity所需要的进程是否启动，若启动调用realStartProcessLocked,否则Activitymanagerservice.StartProcessLocked先启动进程再启动Activity</p>
+
+<h4 id="activity">4.启动Activity所需的应用进程</h4>
+
+<p>ActivityManagerService.startProcessLocked() 
+Process.start() 
+ActivityThread.main() 
+ActivityThread.attach() 
+ActivityManagerNative.getDefault().attachApplication() 
+ActivityManagerService.attachApplication()</p>
+
+<p>进行了初始化操作而且传入了新的进程名为”android.app.ActivityThread”，发现最终调用了Zygote并通过Socket的方式让Zygote进程fork出了一个新的进程，并根据刚刚传入的名字反射出该对象并执行了main方法，main方法里面初始化逻辑并创建了UI线程消息队列；main方法结束进程已经启动了,但是还没初始化,后面方法结束进程就全部启动了,这里其实又看到ActivityManagerNative.getDefault().***,进程间通信不再赘述。</p>
+
+<h4 id="activity-1">5.执行启动Activity</h4>
+
+<p>ActivityStackSupervisor.attachApplicationLocked() 
+ActivityStackSupervisor.realStartActivityLocked() 
+IApplicationThread.scheduleLauncherActivity() 
+ActivityThread.sendMessage() 
+ActivityThread.H.sendMessage() 
+ActivityThread.H.handleMessage() 
+ActivityThread.handleLauncherActivity() 
+ActivityThread.performLauncherActivity() 
+Instrumentation.callActivityOnCreate() 
+Activity.onCreate() 
+ActivityThread.handleResumeActivity() 
+ActivityThread.performResumeActivity() 
+Activity.performResume() 
+Instrumentation.callActivityOnResume() 
+Activity.onResume() 
+ActivityManagerNative.getDefault().activityResumed(token)</p>
+
+<p>realStartActivityLocked() 方法开始启动Activity了,又看到了IApplicationThread和消息队列,同样的处理系统过来的消息，这次是callActivityOnCreate(),再而callActivityOnResume(),页面已经展示完毕,还没结束,看下面</p>
+
+<h4 id="activityonstop">6.栈顶Activity执行onStop方法</h4>
+
+<p>Looper.myQueue().addIdleHandler(new Idler()) 
+Idler.queueIdle() 
+ActivityManagerNative.getDefault().activityIdle() 
+ActivityManagerService.activityIdle() 
+ActivityStackSupervisor.activityIdleInternalLocked() 
+ActivityStack.stopActivityLocked() 
+IApplicationThread.scheduleStopActivity() 
+ActivityThread.scheduleStopActivity() 
+ActivityThread.sendMessage() 
+ActivityThread.H.sendMessage() 
+ActivityThread.H.handleMessage() 
+ActivityThread.handleStopActivity() 
+ActivityThread.performStopActivityInner() 
+ActivityThread.callCallActivityOnSaveInstanceState() 
+Instrumentation.callActivityOnSaveInstanceState() 
+Activity.performSaveInstanceState() 
+Activity.onSaveInstanceState() 
+Activity.performStop() 
+Instrumentation.callActivityOnStop() 
+Activity.onStop()</p>
+
+<p>handleResumeActivity()方法中主要到Looper.myQueue().addIdleHandler(new Idler())这个方法,跟进去都是熟悉的流程，熟悉的对象，熟悉的方法，最终调用了callActivityOnStop()方法</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">ph520</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2017-04-24T18:16:09+08:00'><span class='date'>2017年4月24日</span> <span class='time'>6:16 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/androidyuan-ma/'>android源码</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+    <a class="jiathis_button_qzone"></a>
+    <a class="jiathis_button_tsina"></a>
+    <a class="jiathis_button_tqq"></a>
+    <a class="jiathis_button_weixin"></a>
+    <a class="jiathis_button_renren"></a>
+    <a href="http://www.jiathis.com/share?uid=2130839" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+    <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript">
+    var jiathis_config = {data_track_clickback:'true'};
+    </script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=2130839" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2130839"></script>
+<!-- UY END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2017%E5%B9%B4%E7%9A%8417%E4%B8%AA%E5%B0%8F%E5%BB%BA%E8%AE%AE.html" title="Previous Post: 2017年的小建议（摘自别人的文章）">&laquo; 2017年的小建议（摘自别人的文章）</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/hahaha.html" title="Next Post: Activity布局加载流程和布局绘制流程">Activity布局加载流程和布局绘制流程 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+    <h1>文章分类</h1>
+    <ul id=”categories”>
+        <li class='category'><a href='/blog/categories/android/'>android (2)</a></li>
+<li class='category'><a href='/blog/categories/android源码/'>android源码 (2)</a></li>
+<li class='category'><a href='/blog/categories/生活/'>生活 (1)</a></li>
+
+    </ul>
+</section><section>
+  <h1>最新文章</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/hahaha.html">Activity布局加载流程和布局绘制流程</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Activity%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B.html">Activity启动过程</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017%E5%B9%B4%E7%9A%8417%E4%B8%AA%E5%B0%8F%E5%BB%BA%E8%AE%AE.html">2017年的小建议（摘自别人的文章）</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Retrofit.html">Retrofit</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/OkHttp.html">OkHttp</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - ph520 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1261699464'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s95.cnzz.com/z_stat.php%3Fid%3D1261699464' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+</p>
+
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

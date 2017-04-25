@@ -4,7 +4,7 @@
   <title><![CDATA[SmartRoc技术博客]]></title>
   <link href="http://www.holysroc.cn/atom.xml" rel="self"/>
   <link href="http://www.holysroc.cn/"/>
-  <updated>2017-04-19T16:04:49+08:00</updated>
+  <updated>2017-04-25T18:02:09+08:00</updated>
   <id>http://www.holysroc.cn/</id>
   <author>
     <name><![CDATA[ph520]]></name>
@@ -12,6 +12,370 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Activity布局加载流程和布局绘制流程]]></title>
+    <link href="http://www.holysroc.cn/blog/hahaha.html"/>
+    <updated>2017-04-25T16:41:17+08:00</updated>
+    <id>http://www.holysroc.cn/blog/hahaha</id>
+    <content type="html"><![CDATA[<h2 id="activity">Activity布局加载流程和布局绘制流程</h2>
+
+<h3 id="activity-1">Activity布局加载流程</h3>
+<!--more-->
+
+<h4 id="activityactivitythreadattach">1.从之前Activity启动流程中有个ActivityThread.attach()这个方法</h4>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">mWindow = new PhoneWindow(this);
+</span><span class="line">mWindow.setCallback(this);
+</span><span class="line">   	mWindow.setOnWindowDismissedCallback(this);
+</span><span class="line">mWindow.getLayoutInflater().setPrivateFactory(this);</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>初始化了mWindow这个对象，其实是PhoneWindow实例法</p>
+
+<h4 id="attachminstrumentationcallactivityoncreateactivity-rstate">2.attach方法里面mInstrumentation.callActivityOnCreate(activity, r.state);</h4>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">public void callActivityOnCreate(Activity activity, Bundle icicle) 
+</span><span class="line">{
+</span><span class="line">    prePerformCreate(activity);
+</span><span class="line">    activity.performCreate(icicle);
+</span><span class="line">    postPerformCreate(activity);
+</span><span class="line">}
+</span><span class="line">
+</span><span class="line">final void performCreate(Bundle icicle) {
+</span><span class="line">    onCreate(icicle);
+</span><span class="line">    mActivityTransitionState.readState(icicle);
+</span><span class="line">    performCreateCommon();
+</span><span class="line">}
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>可以看到生命周期onCreate是在这里回调的</p>
+
+<h4 id="oncreatesuperoncreateperformlaunchactivit">3. 看onCreate里面代码,做了一些初始化数据;如果我们不调用super.onCreate(),会在performLaunchActivit</h4>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">            if (r.isPersistable()) {
+</span><span class="line">                mInstrumentation.callActivityOnCreate(activity, r.state, r.persistentState);
+</span><span class="line">            } else {
+</span><span class="line">                mInstrumentation.callActivityOnCreate(activity, r.state);
+</span><span class="line">            }
+</span><span class="line">            if (!activity.mCalled) 
+</span><span class="line">                throw new SuperNotCalledException(
+</span><span class="line">                    "Activity " + r.intent.getComponent().toShortString() +
+</span><span class="line">                    " did not call through to super.onCreate()");
+</span><span class="line">            }
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>activity.mCalled这个参数在super.onCreate()赋值为true了,不调用就会抛异常</p>
+
+<h4 id="setcontentview">4. 看setContentView，贴了一些重要代码块</h4>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+<span class="line-number">52</span>
+<span class="line-number">53</span>
+<span class="line-number">54</span>
+<span class="line-number">55</span>
+<span class="line-number">56</span>
+<span class="line-number">57</span>
+<span class="line-number">58</span>
+<span class="line-number">59</span>
+<span class="line-number">60</span>
+<span class="line-number">61</span>
+<span class="line-number">62</span>
+<span class="line-number">63</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">public void setContentView(@LayoutRes int layoutResID) {
+</span><span class="line">    getWindow().setContentView(layoutResID);
+</span><span class="line">    initWindowDecorActionBar();
+</span><span class="line">}
+</span><span class="line">
+</span><span class="line">@Override
+</span><span class="line">public void setContentView(int layoutResID) {
+</span><span class="line">    // Note: FEATURE_CONTENT_TRANSITIONS may be set in the process of installing the window
+</span><span class="line">    // decor, when theme attributes and the like are crystalized. Do not check the feature
+</span><span class="line">    // before this happens.
+</span><span class="line">    if (mContentParent == null) {
+</span><span class="line">        installDecor();
+</span><span class="line">    } else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
+</span><span class="line">        mContentParent.removeAllViews();
+</span><span class="line">    }
+</span><span class="line">
+</span><span class="line">    if (hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
+</span><span class="line">        final Scene newScene = Scene.getSceneForLayout(mContentParent, layoutResID,
+</span><span class="line">                getContext());
+</span><span class="line">        transitionTo(newScene);
+</span><span class="line">    } else {
+</span><span class="line">        mLayoutInflater.inflate(layoutResID, mContentParent);
+</span><span class="line">    }
+</span><span class="line">    mContentParent.requestApplyInsets();
+</span><span class="line">    final Callback cb = getCallback();
+</span><span class="line">    if (cb != null &amp;&amp; !isDestroyed()) {
+</span><span class="line">        cb.onContentChanged();
+</span><span class="line">    }
+</span><span class="line">}
+</span><span class="line">
+</span><span class="line">private void installDecor() {
+</span><span class="line">    if (mDecor == null) {
+</span><span class="line">        mDecor = generateDecor();
+</span><span class="line">        mDecor.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+</span><span class="line">        mDecor.setIsRootNamespace(true);
+</span><span class="line">        if (!mInvalidatePanelMenuPosted &amp;&amp; mInvalidatePanelMenuFeatures != 0) {
+</span><span class="line">            mDecor.postOnAnimation(mInvalidatePanelMenuRunnable);
+</span><span class="line">        }
+</span><span class="line">    }
+</span><span class="line">    ...
+</span><span class="line">}
+</span><span class="line">
+</span><span class="line">protected DecorView generateDecor() {
+</span><span class="line">    return new DecorView(getContext(), -1);
+</span><span class="line">}
+</span><span class="line">
+</span><span class="line">if (mContentParent == null) {
+</span><span class="line">        mContentParent = generateLayout(mDecor);
+</span><span class="line">        
+</span><span class="line">protected ViewGroup generateLayout(DecorView decor) {
+</span><span class="line">    ...
+</span><span class="line">
+</span><span class="line">    View in = mLayoutInflater.inflate(layoutResource, null);
+</span><span class="line">    decor.addView(in, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+</span><span class="line">    mContentRoot = (ViewGroup) in;
+</span><span class="line">
+</span><span class="line">    ViewGroup contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT);
+</span><span class="line">    if (contentParent == null) {
+</span><span class="line">        throw new RuntimeException("Window couldn't find content container view");
+</span><span class="line">    }
+</span><span class="line">	...
+</span><span class="line">    return contentParent;
+</span><span class="line">}
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>可以发现这里就是通过调用LayoutInflater.inflate方法来加载布局文件到内存中,inflate通过对xml解析，将信息解析到了View中，一步步解析到了rootview中；通过对代码的分析，我们发现PhoneWindow中的几个成员变量：mDector，mContentRoot，mContentParent的继承关系</p>
+
+<h4 id="mlayoutinflaterinflatelayoutresid-mcontentparent">5. mLayoutInflater.inflate(layoutResID, mContentParent)这个方法</h4>
+
+<p>layoutId作为mContentParent的子View，而mContentParent又是mContentRoot的子View，mContentRoot又是mDector的子View，通过LayoutInflater的inflate方法逐步加载到了内存中，而我们的Activity又持有自身的PhoneWindow的引用，这就相当于我们的Activity持有了我们定义的布局文件的引用，因而Activity的布局文件被加载到了内存中。</p>
+
+<h3 id="activity-2">Activity布局绘制流程</h3>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Activity启动过程]]></title>
+    <link href="http://www.holysroc.cn/blog/Activity%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B.html"/>
+    <updated>2017-04-24T18:16:09+08:00</updated>
+    <id>http://www.holysroc.cn/blog/Activity启动过程</id>
+    <content type="html"><![CDATA[<h3 id="section">知识点：</h3>
+
+<p>1.生命周期</p>
+
+<p>2.启动模式
+	stand	ard,singletop,singletask,singleinstance
+<!--more--></p>
+
+<p>3.启动进程
+	清单文件定义Activity的时候，默认属于以包名命名的进程。启动的时候检测这个Activity所属进程是否启动，若没启动，则启动进程后才会执行Activity启动</p>
+
+<p>4.启动方式
+	显示，隐式。显示启动需要Activity字节码,不需要执行Intent Filter索引找出那个Activity,而隐士启动则是通过Intent Filter，因为无法获取其他进程的字节码。所以需要启动其他应用的Activity,一般都是隐式。</p>
+
+<p>5.cs模式<br />
+	Activity启动过程其实是应用进程和SystemServer进程相互配合启动Activity的过程，应用进程负责生命周期方法等操作，而后者是调用各种服务，将Activity保存在栈中，协调系统资源等操作</p>
+
+<p>6.binder机制
+	Android系统存了Zygote进程和SystemServer进程以及各种应用进程等，为了能够实现各种进程之间的通讯，Android系统采用了自己的进程间通讯方式Binder机制。其中主要涉及到了四种角色：Binder Client，Binder Server，Binder Manager， Binder driver。</p>
+
+<h3 id="section-1">代码执行过程:</h3>
+
+<h4 id="section-2">1.请求执行过程</h4>
+
+<p>MyActivity.startActivity()</p>
+
+<p>Activity.startActivity()</p>
+
+<p>Activity.startActivityForResult （知识点 requestcode&gt;=0 是有效值）</p>
+
+<p>Instrumentation.execStartActivty</p>
+
+<p>ActivityManagerNative.getDefault().startActivityAsUser() 前者返回了activitymanagerproxy这个代理对象，这里涉及到进程间通信的知识，引入一个概念，ActivityThread属于应用进程通过ActivityManagerNative这个Ibinder对象调用属于SystemServer进程中的ActivityManagerService,看下面ActivityManagerService.startActivity()</p>
+
+<h4 id="activitymanagerserviceactivity">2.ActivityManagerService接收启动Activity的请求</h4>
+
+<p>ActivityManagerService.startActivity() 
+ActvityiManagerService.startActivityAsUser() 
+ActivityStackSupervisor.startActivityMayWait() 
+ActivityStackSupervisor.startActivityLocked() 
+ActivityStackSupervisor.startActivityUncheckedLocked() 
+ActivityStackSupervisor.startActivityLocked() 
+ActivityStackSupervisor.resumeTopActivitiesLocked() 
+ActivityStackSupervisor.resumeTopActivityInnerLocked()</p>
+
+<p>构造了ActivityeRecord对象,解析出Activity的启动模式,对栈做出相应的处理;还初始化了windowManager服务;并对请求的信息进行保存；一系列的逻辑之后执行当前系统栈顶Activity的onPause操作ActivityStack.startPausingLocked()</p>
+
+<h4 id="onpause">3.执行栈顶的onPause</h4>
+
+<p>ActivityStack.startPausingLocked()</p>
+
+<p>IApplicationThread.schudulePauseActivity()</p>
+
+<p>ActivityThread.sendMessage()</p>
+
+<p>ActivityThread.H.sendMessage();</p>
+
+<p>ActivityThread.H.handleMessage()</p>
+
+<p>ActivityThread.handlePauseActivity()</p>
+
+<p>ActivityThread.performPauseActivity()</p>
+
+<p>Activity.performPause()</p>
+
+<p>Activity.onPause()</p>
+
+<p>ActivityManagerNative.getDefault().activityPaused(token)</p>
+
+<p>ActivityManagerService.activityPaused()</p>
+
+<p>ActivityStack.activityPausedLocked()</p>
+
+<p>ActivityStack.completePauseLocked()</p>
+
+<p>ActivityStack.resumeTopActivitiesLocked()</p>
+
+<p>ActivityStack.resumeTopActivityLocked()</p>
+
+<p>ActivityStack.resumeTopActivityInnerLocked()</p>
+
+<p>ActivityStack.startSpecificActivityLocked</p>
+
+<p>ActivityService要调用onPause了,那么应用进程怎么知道呢,这边又是一个IApplicationThread即Binder对象,进程间通信,ActivityThread执行方法schedulePauseActivity;看到源码里面调用了sendMessage,ActivityThread里面定义了一个Handler,主要处理SystemServer进程的消息;应用进程执行完了OnPause再通知系统进程,又回到了第二步的解析方法ActivityStack.resumeTopActivitiesLocked，这时候继续执行activity的启动startSpecificActivityLocked,这个方法先判断了一个需要启动的Activity所需要的进程是否启动，若启动调用realStartProcessLocked,否则Activitymanagerservice.StartProcessLocked先启动进程再启动Activity</p>
+
+<h4 id="activity">4.启动Activity所需的应用进程</h4>
+
+<p>ActivityManagerService.startProcessLocked() 
+Process.start() 
+ActivityThread.main() 
+ActivityThread.attach() 
+ActivityManagerNative.getDefault().attachApplication() 
+ActivityManagerService.attachApplication()</p>
+
+<p>进行了初始化操作而且传入了新的进程名为”android.app.ActivityThread”，发现最终调用了Zygote并通过Socket的方式让Zygote进程fork出了一个新的进程，并根据刚刚传入的名字反射出该对象并执行了main方法，main方法里面初始化逻辑并创建了UI线程消息队列；main方法结束进程已经启动了,但是还没初始化,后面方法结束进程就全部启动了,这里其实又看到ActivityManagerNative.getDefault().***,进程间通信不再赘述。</p>
+
+<h4 id="activity-1">5.执行启动Activity</h4>
+
+<p>ActivityStackSupervisor.attachApplicationLocked() 
+ActivityStackSupervisor.realStartActivityLocked() 
+IApplicationThread.scheduleLauncherActivity() 
+ActivityThread.sendMessage() 
+ActivityThread.H.sendMessage() 
+ActivityThread.H.handleMessage() 
+ActivityThread.handleLauncherActivity() 
+ActivityThread.performLauncherActivity() 
+Instrumentation.callActivityOnCreate() 
+Activity.onCreate() 
+ActivityThread.handleResumeActivity() 
+ActivityThread.performResumeActivity() 
+Activity.performResume() 
+Instrumentation.callActivityOnResume() 
+Activity.onResume() 
+ActivityManagerNative.getDefault().activityResumed(token)</p>
+
+<p>realStartActivityLocked() 方法开始启动Activity了,又看到了IApplicationThread和消息队列,同样的处理系统过来的消息，这次是callActivityOnCreate(),再而callActivityOnResume(),页面已经展示完毕,还没结束,看下面</p>
+
+<h4 id="activityonstop">6.栈顶Activity执行onStop方法</h4>
+
+<p>Looper.myQueue().addIdleHandler(new Idler()) 
+Idler.queueIdle() 
+ActivityManagerNative.getDefault().activityIdle() 
+ActivityManagerService.activityIdle() 
+ActivityStackSupervisor.activityIdleInternalLocked() 
+ActivityStack.stopActivityLocked() 
+IApplicationThread.scheduleStopActivity() 
+ActivityThread.scheduleStopActivity() 
+ActivityThread.sendMessage() 
+ActivityThread.H.sendMessage() 
+ActivityThread.H.handleMessage() 
+ActivityThread.handleStopActivity() 
+ActivityThread.performStopActivityInner() 
+ActivityThread.callCallActivityOnSaveInstanceState() 
+Instrumentation.callActivityOnSaveInstanceState() 
+Activity.performSaveInstanceState() 
+Activity.onSaveInstanceState() 
+Activity.performStop() 
+Instrumentation.callActivityOnStop() 
+Activity.onStop()</p>
+
+<p>handleResumeActivity()方法中主要到Looper.myQueue().addIdleHandler(new Idler())这个方法,跟进去都是熟悉的流程，熟悉的对象，熟悉的方法，最终调用了callActivityOnStop()方法</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[2017年的小建议（摘自别人的文章）]]></title>

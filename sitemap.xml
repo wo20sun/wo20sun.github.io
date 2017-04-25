@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://www.holysroc.cn/blog/hahaha.html</loc>
+    <lastmod>2017-04-25T16:41:17+08:00</lastmod>
+  </url>
+  <url>
+    <loc>http://www.holysroc.cn/blog/Activity%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B.html</loc>
+    <lastmod>2017-04-24T18:16:09+08:00</lastmod>
+  </url>
+  <url>
     <loc>http://www.holysroc.cn/blog/2017%E5%B9%B4%E7%9A%8417%E4%B8%AA%E5%B0%8F%E5%BB%BA%E8%AE%AE.html</loc>
     <lastmod>2017-04-11T02:18:28+08:00</lastmod>
   </url>
@@ -26,5 +34,8 @@
   </url>
   <url>
     <loc>http://www.holysroc.cn/blog/categories/sheng-huo/</loc>
+  </url>
+  <url>
+    <loc>http://www.holysroc.cn/blog/categories/androidyuan-ma/</loc>
   </url>
 </urlset>
