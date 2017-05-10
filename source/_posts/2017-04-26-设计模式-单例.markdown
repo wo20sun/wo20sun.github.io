@@ -1,0 +1,137 @@
+---
+layout: post
+title: "设计模式-面向对象五大原则"
+date: 2017-04-26 10:20:49 +0800
+comments: true
+categories: 
+description: 
+keywords: 
+
+---
+
+面向对象的三大特性：封装，继承，多态；
+
+五大原则：SOLID
+
+<!--more-->
+
+* S: 单一职责原则
+* O: 开闭原则
+* L: 里氏替换原则 
+* I: 接口隔离原则
+* D: 依赖倒置原则
+
+
+单例模式:一个App中都对一个实例进行操作
+
+优点：
+
+* 性能的开支减少，如果一个实例的创建，需要耗费很多的资源，比如读取配置，产生其他依赖对象，则可以在应用启动时启动一个单例对象* 
+* 内存开支减少，如果一个对象需要频繁的创建和销毁，而且又没有办法对创建和销毁优化
+* 避免对资源重复占用，如果需要对一个文件进行读写操作，那么一个实例可以避免对这个文件同时读写
+* 资源共享，可以在全局系统设置访问
+
+缺点：
+
+* 扩展很困难，因为一般没有接口
+
+
+普通的两种写法：饿汉式和懒汉式(延迟加载，用的时候才开始实例化);
+	
+	饿汉式：
+	public class Test{  
+  
+    private static final Test test = new Test();  
+  
+    private Test() {  
+    }  
+  
+    public static Test getTestInstance() {  
+        return test;  
+    }  
+	} 
+	
+	懒汉式式：
+	public class Test {
+
+    private static Test test = null;
+
+    private Test() {
+
+    }
+
+    public static Test getTestInstance() {
+        if (test == null) {
+            test = new Test();
+        }
+        return test;
+    }
+	}
+
+以上二种写法使用在线程非安全的情况，如果考虑到线程安全，需要使用关键字synchronized
+
+	//DCL写法 (Double-Check)
+	public static Test getTestInstance() {
+        if (test == null) {
+            synchronized (Test.class) {
+                if (test == null) {
+                    test = new Test();
+                }
+            }
+        }
+        return test;
+    }
+
+DCL写法还是有问题，并不能完全避免并发带来的破坏，这里又引入了静态类并延迟加载的好方法
+
+	public class Test {
+
+    private Test() {
+
+    }
+
+    public static Test getTestInstance() {
+        return TestHolder.test;
+    }
+
+    private static class TestHolder{
+        private static final Test test = new Test();
+    }
+
+	}
+	
+这种写法比较推荐，又能延迟加载而且解决了并发的问题
+
+还有枚举写法的单例，这里就介绍一下，用的很少
+
+	enum SingletonEnum {
+		INSTANCE;
+		public void doSomething() {
+			System.out.println("do sth.");
+		}
+	}
+	
+最后介绍一种容器单例的写法，根据key获取对象；一般会有相同属性类型的对象注册到map中
+
+	private static Map<string singleton=""> objMap = new HashMap<string singleton="">();
+	/**
+	 * 注册对象到map中
+	 * @param key
+	 * @param instance
+	 */
+	public static void registerService(String key, Singleton instance) {
+		if (!objMap.containsKey(key) ) {
+			objMap.put(key, instance) ;
+		}
+	}
+	
+	/**
+	 * 根据key获取对象
+	 * @param key
+	 * @return
+	 */
+	public static Singleton getService(String key) {
+		return objMap.get(key) ;
+	}
+	
+在安卓源码中，就使用了这种方式

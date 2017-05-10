@@ -42,7 +42,7 @@ keywords: Activity布局加载流程,Activity布局绘制流程,布局加载流�
 ```
 可以看到生命周期onCreate是在这里回调的
 
-#### 3. 看onCreate里面代码,做了一些初始化数据;如果我们不调用super.onCreate(),会在performLaunchActivit 
+#### 3. 看onCreate里面代码,做了一些初始化数据;如果我们不调用super.onCreate(),会在performLaunchActivity报异常
 
  
 ```
@@ -128,7 +128,7 @@ activity.mCalled这个参数在super.onCreate()赋值为true了,不调用就会�
     }
     
 ```
-可以发现这里就是通过调用LayoutInflater.inflate方法来加载布局文件到内存中,inflate通过对xml解析，将信息解析到了View中，一步步解析到了rootview中；通过对代码的分析，我们发现PhoneWindow中的几个成员变量：mDector，mContentRoot，mContentParent的继承关系 
+可以发现这里就是通过调用LayoutInflater.inflate方法来加载布局文件到内存中,inflate通过对xml解析，将信息解析到了View中，一步步解析到了rootview中；通过对代码的分析，我们发现PhoneWindow中的几个成员变量：mDector，mContentRoot，mContentParent,三者之间是继承关系 
 
 #### 5. mLayoutInflater.inflate(layoutResID, mContentParent)这个方法
 
