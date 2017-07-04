@@ -5,12 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>OkHttp - SmartRoc技术博客</title>
+  <title>设计模式-面向对象五大原则 - SmartRoc技术博客</title>
   <meta name="author" content="ph520">
 
   
-  <meta name="description" content="
-">
+  <meta name="description" content="面向对象的三大特性：封装，继承，多态； 五大原则：SOLID S: 单一职责原则 O: 开闭原则 L: 里氏替换原则 I: 接口隔离原则 D: 依赖倒置原则 单例模式:一个App中都对一个实例进行操作 优点： 性能的开支减少，如果一个实例的创建，需要耗费很多的资源，比如读取配置，产生其他依赖对象， &hellip;">
   
       <meta name="keywords" content="android, SmartRoc技术博客, SmartRoc">
 
@@ -20,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://www.holysroc.cn/blog/OkHttp.html">
+  <link rel="canonical" href="http://www.holysroc.cn/blog/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%8D%95%E4%BE%8B.html">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="SmartRoc技术博客" type="application/atom+xml">
@@ -80,7 +79,7 @@ addBlankTargetForLinks();
   
   <header>
     
-      <h1 class="entry-title">OkHttp</h1>
+      <h1 class="entry-title">设计模式-面向对象五大原则</h1>
     
     
       <p class="meta">
@@ -89,14 +88,156 @@ addBlankTargetForLinks();
 
 
 
-<time class='entry-date' datetime='2015-07-09T11:51:28+08:00'><span class='date'>2015年7月9日</span> <span class='time'>11:51 am</span></time>
+<time class='entry-date' datetime='2017-04-26T10:20:49+08:00'><span class='date'>2017年4月26日</span> <span class='time'>10:20 am</span></time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content">
+<div class="entry-content"><p>面向对象的三大特性：封装，继承，多态；</p>
+
+<p>五大原则：SOLID</p>
+
+<!--more-->
+
+<ul>
+  <li>S: 单一职责原则</li>
+  <li>O: 开闭原则</li>
+  <li>L: 里氏替换原则</li>
+  <li>I: 接口隔离原则</li>
+  <li>D: 依赖倒置原则</li>
+</ul>
+
+<p>单例模式:一个App中都对一个实例进行操作</p>
+
+<p>优点：</p>
+
+<ul>
+  <li>性能的开支减少，如果一个实例的创建，需要耗费很多的资源，比如读取配置，产生其他依赖对象，则可以在应用启动时启动一个单例对象*</li>
+  <li>内存开支减少，如果一个对象需要频繁的创建和销毁，而且又没有办法对创建和销毁优化</li>
+  <li>避免对资源重复占用，如果需要对一个文件进行读写操作，那么一个实例可以避免对这个文件同时读写</li>
+  <li>资源共享，可以在全局系统设置访问</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>扩展很困难，因为一般没有接口</li>
+</ul>
+
+<p>普通的两种写法：饿汉式和懒汉式(延迟加载，用的时候才开始实例化);</p>
+
+<pre><code>饿汉式：
+public class Test{  
+  
+private static final Test test = new Test();  
+  
+private Test() {  
+}  
+  
+public synchronized static Test getTestInstance() {  
+    return test;  
+}  
+} 
+
+懒汉式式：
+public class Test {
+
+private static Test test = null;
+
+private Test() {
+
+}
+
+public synchronized static Test getTestInstance() {
+    if (test == null) {
+        test = new Test();
+    }
+    return test;
+}
+}
+</code></pre>
+
+<p>每一次取实例synchronized都同步，需要消耗太多的资源，一般不建议使用，那么看看另一种方式即使用DCL</p>
+
+<pre><code>//DCL写法 (Double-Check-Lock)
+public static Test getTestInstance() {
+    if (test == null) {
+        synchronized (Test.class) {
+            if (test == null) {
+                test = new Test();
+            }
+        }
+    }
+    return test;
+}
+</code></pre>
+
+<p>DCL这种写法还是有问题，并不能完全避免并发带来的破坏；分析一下，先了解一下写法，第一次判断空是未为了避免不必要的同步，第二次判断为空，是为了创建实例；</p>
+
+<p>这种写法乍看是没问题的，这里引入一个DCL失效的概念，什么情况呢？涉及一个概念创建对象过程中（ test = new Test() ）其实编译器做了三件事，（1）给Test类分配内存，（2）调用构造函数，（3）对象指向内存空间（这一步test不是null了）</p>
+
+<p>由于2，3二步执行顺序是不定的，如果执行是132顺序，A线程执行到3，test不为null了，B线程进来发现test不是null，直接取走了test，再使用时就会出错。这就是DCL失效</p>
+
+<p>但是呢，JDK1.5之后SUN公司主要到了问题就具体化了valitile关键字，private volatile static Test test = null这样就可以保证每次取对象都是从内存中取，这个关键字肯定是影响性能的，但是为了正确性，牺牲是值得的</p>
+
+<p>这种方式满足大部分需求，除非就是高并发场景很复杂或者JDK6以下使用，所以这里又引入了静态类并延迟加载的好方法</p>
+
+<pre><code>public class Test {
+
+private Test() {
+
+}
+
+public static Test getTestInstance() {
+    return TestHolder.test;
+}
+
+private static class TestHolder{
+    private static final Test test = new Test();
+}
+
+}
+</code></pre>
+
+<p>这种写法比较推荐，又能延迟加载而且解决了并发的问题</p>
+
+<p>还有枚举写法的单例，这里就介绍一下，用的很少</p>
+
+<pre><code>enum SingletonEnum {
+	INSTANCE;
+	public void doSomething() {
+		System.out.println("do sth.");
+	}
+}
+</code></pre>
+
+<p>最后介绍一种容器单例的写法，根据key获取对象；一般会有相同属性类型的对象注册到map中</p>
+
+<pre><code>private static Map&lt;string singleton=""&gt; objMap = new HashMap&lt;string singleton=""&gt;();
+/**
+ * 注册对象到map中
+ * @param key
+ * @param instance
+ */
+public static void registerService(String key, Singleton instance) {
+	if (!objMap.containsKey(key) ) {
+		objMap.put(key, instance) ;
+	}
+}
+
+/**
+ * 根据key获取对象
+ * @param key
+ * @return
+ */
+public static Singleton getService(String key) {
+	return objMap.get(key) ;
+}
+</code></pre>
+
+<p>在安卓源码中，就使用了这种方式</p>
 </div>
 
 
@@ -112,14 +253,8 @@ addBlankTargetForLinks();
 
 
 
-<time class='entry-date' datetime='2015-07-09T11:51:28+08:00'><span class='date'>2015年7月9日</span> <span class='time'>11:51 am</span></time>
+<time class='entry-date' datetime='2017-04-26T10:20:49+08:00'><span class='date'>2017年4月26日</span> <span class='time'>10:20 am</span></time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/android/'>android</a>
-  
-</span>
 
 
     </p>
@@ -154,8 +289,10 @@ addBlankTargetForLinks();
     
     <p class="meta">
       
+        <a class="basic-alignment left" href="/blog/Activity%E5%B8%83%E5%B1%80%E5%8A%A0%E8%BD%BD%E5%92%8C%E7%BB%98%E5%88%B6.html" title="Previous Post: Activity布局加载流程和布局绘制流程">&laquo; Activity布局加载流程和布局绘制流程</a>
       
-        <a class="basic-alignment right" href="/blog/Retrofit.html" title="Next Post: Retrofit">Retrofit &raquo;</a>
+      
+        <a class="basic-alignment right" href="/blog/android-ipc-binder.html" title="Next Post: Android_IPC_Binder">Android_IPC_Binder &raquo;</a>
       
     </p>
   </footer>

@@ -4,7 +4,7 @@
   <title><![CDATA[SmartRoc技术博客]]></title>
   <link href="http://www.holysroc.cn/atom.xml" rel="self"/>
   <link href="http://www.holysroc.cn/"/>
-  <updated>2017-04-25T18:02:09+08:00</updated>
+  <updated>2017-07-04T10:40:22+08:00</updated>
   <id>http://www.holysroc.cn/</id>
   <author>
     <name><![CDATA[ph520]]></name>
@@ -14,10 +14,223 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Android_IPC_Binder]]></title>
+    <link href="http://www.holysroc.cn/blog/android-ipc-binder.html"/>
+    <updated>2017-05-17T15:29:53+08:00</updated>
+    <id>http://www.holysroc.cn/blog/android-ipc-binder</id>
+    <content type="html"><![CDATA[<p>IPC</p>
+
+<h4 id="section">1.简介</h4>
+
+<p>Inter-Process Communication含义进程间通信或者跨进程通信，即两个进程之间进行数据交换的过程。</p>
+
+<p>IPC机制不是Android独有的，任何系统都有响应的机制，比如WINDOWS中通过剪切板，管道和油槽等进行进程间通信；Linus通过命名管道，共享内容，信号量等进行进程间通信；对于安卓，比较有特色的就是Binder，当然还支持Socket。</p>
+
+<!--more-->
+
+<p>什么时候需要用多进程呢？第一种情况是一个应用由于特殊原因自身需要采用多进程模式来实现，其中可能有些模块由于特殊原因需要运行在单独的进程中，又或者为了加大一个应用可使用的内存所以使用多进程获取多份内存空间；第二种情况是当前应用需要向其他应用获取数据，由于是2个应用所以需要跨进程	通信，比如我们的组件ContentProvider，其实也是进程间通信，后续看源码了解下。</p>
+
+<h4 id="section-1">2.安卓中的多进程模式</h4>
+
+<h5 id="section-2">2.1 开启多进程模式</h5>
+
+<p>使用多进程只有一种方式，清单文件AndroidMenifest指定android:process属性，进程名为:remote的当前进程名会加上包名信息，并且是属于私有进程，其他应用的组件不能和他跑在同一进程；而进程名不以”:”开头的则是全局进程，其他应用可以通过ShareUID方式和他跑在同一进程。</p>
+
+<p>Android系统会为每个应用分配唯一UID，具有相同UID的应用才能共享数据；当然两个应用通过ShareUID跑在同一进程必须要求两个应用有相同的ShareUID并且签名相同。具有相同UID的不管是否在同一进程，他们都可以互相访问私有数据,比如data目录，组件信息等，如果是同一进程还能共享内存数据，或者说他们是一个应用的两个部分。</p>
+
+<h5 id="section-3">2.2 多进程运行机制</h5>
+
+<p>所有运行在多进程的四大组件，只要它们之间需要通过内存共享数据，都会失败，比如说</p>
+
+<p>(1)静态成员和单例模式失效</p>
+
+<p>(2)线程同步机制完全失效</p>
+
+<p>(3)SharedPreferences的可靠性下降 （不支持两个进程同时去执行写操作，否则会一定几率丢失数据，因为它的底层是写XML文件，并发写显示可能出问题）</p>
+
+<p>(4)Application会多次创建（一个组件启动另一个进程，新的进程会被分配独立的虚拟机，这其实就是个启动过程。 实验：可以创建一个工程，创建3个不同process的Activity，一个个启动，打印自定义的MyApplication的线程，可以发现打印了3次）</p>
+
+<h5 id="ipc">2.3 IPC基本概念</h5>
+
+<h5 id="androidipc">2.4 Android中的IPC方式</h5>
+
+<ul>
+  <li>使用Bundle</li>
+  <li>使用文件共享</li>
+  <li>使用Messager （这种方式是串行的，高并发不适合，而且它主要是传递消息，无法跨进程调用服务端的方法）</li>
+  <li>使用ContentProvider</li>
+  <li>使用Socket</li>
+  <li>使用AIDL (<a href="https://github.com/wo20sun/AllRound/tree/master/aidl">Demo项目地址</a>)</li>
+</ul>
+
+<p>看完小Demo之后，有几个注意事项：</p>
+
+<ol>
+  <li>RemoteCallbackList是系统专门提供的用于删除跨进程listener的接口，是一个泛型<e extends="" iinterface="">，支持任意的AIDL接口，所有的AIDL接口都继承IInterface;它的工作原理，内部是一个ArrayMap&lt;IBinder,Callback&gt;，根据虽然多次跨进程传输的同一个对象会生成不同对象(这也是List管理时取消不掉注册监听的原因)，但是他们底层都是同一个Bind对象的特性能找出对应的Callback从而完成工作；另外它内部也实现了线程同步，不需要额外的线程同步工作；最后注意他的用法，比如取集合大小的时候， begin..和finsh..必须成对出现</e></li>
+  <li>当客户端调用远程服务的时候，远程服务是运行在Binder线程池的，而且客户端会被挂起，如果服务端比较耗时，客户端就会堵塞，如果客户端又是UI线程会导致ANR；而且客户端onServiceConnected和onServiceDisConnected都是在UI线程，所以执行的时候请开线程（Demo中并未有那么做，请注意）；另外服务端方法本身就是执行在线程池的，请不要另开线程执行任务，除非你知道你这么干，否则不要这么做；同理，服务端掉客户端的接口也是一个道理，耗时任务请开线程，否则服务端无法响应；而且客户端的onNewBookArrive方法是运行在Binder线程池的，不要操作UI，请用Handler。</li>
+  <li>Binder可能意外死亡，一般是由于服务端进程挂了，需要重新连接。有两种方法，第一种，给Binder设置DeathRecipient监听，死亡时会回调binderDied方法,在里面重连服务；第二种，onServiceDisConnected方法里面重连；二者的区别前者是Binder线程池的回调，后者是UI线程的回调。</li>
+  <li>权限验证，默认情况下任何人都可以连接远程服务。有两种方式进行验证，第一种，在onBind方法里面验证permission,当然需要我们先自定义权限，然后在代码中调用checkCallingOrSelfPermission方法；第二种方法，在服务端的onTransact方法中进行权限验证，还可以采用UID和PID来验证，通过getCallingUid和getCallingPid方法拿到客户端所属的UID和PID，根据UID和PackageManager的getPakagesForUid方法获取包名再验证</li>
+</ol>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[设计模式-面向对象五大原则]]></title>
+    <link href="http://www.holysroc.cn/blog/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%8D%95%E4%BE%8B.html"/>
+    <updated>2017-04-26T10:20:49+08:00</updated>
+    <id>http://www.holysroc.cn/blog/设计模式-单例</id>
+    <content type="html"><![CDATA[<p>面向对象的三大特性：封装，继承，多态；</p>
+
+<p>五大原则：SOLID</p>
+
+<!--more-->
+
+<ul>
+  <li>S: 单一职责原则</li>
+  <li>O: 开闭原则</li>
+  <li>L: 里氏替换原则</li>
+  <li>I: 接口隔离原则</li>
+  <li>D: 依赖倒置原则</li>
+</ul>
+
+<p>单例模式:一个App中都对一个实例进行操作</p>
+
+<p>优点：</p>
+
+<ul>
+  <li>性能的开支减少，如果一个实例的创建，需要耗费很多的资源，比如读取配置，产生其他依赖对象，则可以在应用启动时启动一个单例对象*</li>
+  <li>内存开支减少，如果一个对象需要频繁的创建和销毁，而且又没有办法对创建和销毁优化</li>
+  <li>避免对资源重复占用，如果需要对一个文件进行读写操作，那么一个实例可以避免对这个文件同时读写</li>
+  <li>资源共享，可以在全局系统设置访问</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>扩展很困难，因为一般没有接口</li>
+</ul>
+
+<p>普通的两种写法：饿汉式和懒汉式(延迟加载，用的时候才开始实例化);</p>
+
+<pre><code>饿汉式：
+public class Test{  
+  
+private static final Test test = new Test();  
+  
+private Test() {  
+}  
+  
+public synchronized static Test getTestInstance() {  
+    return test;  
+}  
+} 
+
+懒汉式式：
+public class Test {
+
+private static Test test = null;
+
+private Test() {
+
+}
+
+public synchronized static Test getTestInstance() {
+    if (test == null) {
+        test = new Test();
+    }
+    return test;
+}
+}
+</code></pre>
+
+<p>每一次取实例synchronized都同步，需要消耗太多的资源，一般不建议使用，那么看看另一种方式即使用DCL</p>
+
+<pre><code>//DCL写法 (Double-Check-Lock)
+public static Test getTestInstance() {
+    if (test == null) {
+        synchronized (Test.class) {
+            if (test == null) {
+                test = new Test();
+            }
+        }
+    }
+    return test;
+}
+</code></pre>
+
+<p>DCL这种写法还是有问题，并不能完全避免并发带来的破坏；分析一下，先了解一下写法，第一次判断空是未为了避免不必要的同步，第二次判断为空，是为了创建实例；</p>
+
+<p>这种写法乍看是没问题的，这里引入一个DCL失效的概念，什么情况呢？涉及一个概念创建对象过程中（ test = new Test() ）其实编译器做了三件事，（1）给Test类分配内存，（2）调用构造函数，（3）对象指向内存空间（这一步test不是null了）</p>
+
+<p>由于2，3二步执行顺序是不定的，如果执行是132顺序，A线程执行到3，test不为null了，B线程进来发现test不是null，直接取走了test，再使用时就会出错。这就是DCL失效</p>
+
+<p>但是呢，JDK1.5之后SUN公司主要到了问题就具体化了valitile关键字，private volatile static Test test = null这样就可以保证每次取对象都是从内存中取，这个关键字肯定是影响性能的，但是为了正确性，牺牲是值得的</p>
+
+<p>这种方式满足大部分需求，除非就是高并发场景很复杂或者JDK6以下使用，所以这里又引入了静态类并延迟加载的好方法</p>
+
+<pre><code>public class Test {
+
+private Test() {
+
+}
+
+public static Test getTestInstance() {
+    return TestHolder.test;
+}
+
+private static class TestHolder{
+    private static final Test test = new Test();
+}
+
+}
+</code></pre>
+
+<p>这种写法比较推荐，又能延迟加载而且解决了并发的问题</p>
+
+<p>还有枚举写法的单例，这里就介绍一下，用的很少</p>
+
+<pre><code>enum SingletonEnum {
+	INSTANCE;
+	public void doSomething() {
+		System.out.println("do sth.");
+	}
+}
+</code></pre>
+
+<p>最后介绍一种容器单例的写法，根据key获取对象；一般会有相同属性类型的对象注册到map中</p>
+
+<pre><code>private static Map&lt;string singleton=""&gt; objMap = new HashMap&lt;string singleton=""&gt;();
+/**
+ * 注册对象到map中
+ * @param key
+ * @param instance
+ */
+public static void registerService(String key, Singleton instance) {
+	if (!objMap.containsKey(key) ) {
+		objMap.put(key, instance) ;
+	}
+}
+
+/**
+ * 根据key获取对象
+ * @param key
+ * @return
+ */
+public static Singleton getService(String key) {
+	return objMap.get(key) ;
+}
+</code></pre>
+
+<p>在安卓源码中，就使用了这种方式</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Activity布局加载流程和布局绘制流程]]></title>
-    <link href="http://www.holysroc.cn/blog/hahaha.html"/>
+    <link href="http://www.holysroc.cn/blog/Activity%E5%B8%83%E5%B1%80%E5%8A%A0%E8%BD%BD%E5%92%8C%E7%BB%98%E5%88%B6.html"/>
     <updated>2017-04-25T16:41:17+08:00</updated>
-    <id>http://www.holysroc.cn/blog/hahaha</id>
+    <id>http://www.holysroc.cn/blog/Activity布局加载和绘制</id>
     <content type="html"><![CDATA[<h2 id="activity">Activity布局加载流程和布局绘制流程</h2>
 
 <h3 id="activity-1">Activity布局加载流程</h3>
@@ -64,7 +277,7 @@
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 <p>可以看到生命周期onCreate是在这里回调的</p>
 
-<h4 id="oncreatesuperoncreateperformlaunchactivit">3. 看onCreate里面代码,做了一些初始化数据;如果我们不调用super.onCreate(),会在performLaunchActivit</h4>
+<h4 id="oncreatesuperoncreateperformlaunchactivity">3. 看onCreate里面代码,做了一些初始化数据;如果我们不调用super.onCreate(),会在performLaunchActivity报异常</h4>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
@@ -218,7 +431,7 @@
 </span><span class="line">    return contentParent;
 </span><span class="line">}
 </span></code></pre></td></tr></table></div></figure></notextile></div>
-<p>可以发现这里就是通过调用LayoutInflater.inflate方法来加载布局文件到内存中,inflate通过对xml解析，将信息解析到了View中，一步步解析到了rootview中；通过对代码的分析，我们发现PhoneWindow中的几个成员变量：mDector，mContentRoot，mContentParent的继承关系</p>
+<p>可以发现这里就是通过调用LayoutInflater.inflate方法来加载布局文件到内存中,inflate通过对xml解析，将信息解析到了View中，一步步解析到了rootview中；通过对代码的分析，我们发现PhoneWindow中的几个成员变量：mDector，mContentRoot，mContentParent,三者之间是继承关系</p>
 
 <h4 id="mlayoutinflaterinflatelayoutresid-mcontentparent">5. mLayoutInflater.inflate(layoutResID, mContentParent)这个方法</h4>
 
